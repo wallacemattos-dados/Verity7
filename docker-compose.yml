@@ -1,0 +1,26 @@
+services:
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - "PORT=3000"
+      - "SUPABASE_URL=https://kfymmtstzwwvqkiqyezp.supabase.co"
+      - "SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmeW1tdHN0end3dnFraXF5ZXpwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTExMDQ5NSwiZXhwIjoyMDk2Njg2NDk1fQ.7-8_asyavwb9E6P8ibaUBQ1AzEhdWjgdsABoPjjoW2I"
+      - "JWT_SECRET=d3533e2f7afee40fc6eb23696120576ccc529ec7ba87995f77a6f741359ebb5b"
+      - "CAPTURE_SERVICE_URL=http://servico-captura:8000"
+    depends_on:
+      - servico-captura
+
+  servico-captura:
+    build:
+      context: ./servico-captura
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    shm_size: '1gb'
+    environment:
+      - "SUPABASE_URL=https://kfymmtstzwwvqkiqyezp.supabase.co"
+      - "SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtmeW1tdHN0end3dnFraXF5ZXpwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTExMDQ5NSwiZXhwIjoyMDk2Njg2NDk1fQ.7-8_asyavwb9E6P8ibaUBQ1AzEhdWjgdsABoPjjoW2I"
