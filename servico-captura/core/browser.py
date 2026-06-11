@@ -6,11 +6,19 @@ async def capturar_tela_pagina(url: str) -> bytes:
         browser = await p.chromium.launch(headless=True)
         page = await browser.new_page()
         
-        # Visita a página e aguarda a rede ficar ociosa para garantir o carregamento
-        await page.goto(url, wait_until="networkidle")
-        
-        # Tira o print da tela inteira
-        screenshot_bytes = await page.screenshot(full_page=True)
-        
-        await browser.close()
-        return screenshot_bytes
+        try:
+            # Muda para "load" e aumenta o tempo limite para 60 segundos
+            await page.goto(url, wait_until="load", timeout=60000)
+            
+            # Adiciona uma pausa forçada de 2 segundos para dar tempo 
+            # de banners e imagens "lazy-load" terminarem de aparecer na tela
+            await page.wait_for_timeout(2000)
+            
+            # Tira o print da tela inteira
+            screenshot_bytes = await page.screenshot(full_page=True)
+            
+            return screenshot_bytes
+            
+        finally:
+            # O bloco finally garante que o navegador será fechado mesmo se der erro
+            await browser.close()
