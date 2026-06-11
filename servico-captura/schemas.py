@@ -11,3 +11,4 @@ class CapturaResponse(BaseModel):
     hash_sha256: str
     tamanho_bytes: int
     status: str
+    screenshot_base64: Optional[str] = None

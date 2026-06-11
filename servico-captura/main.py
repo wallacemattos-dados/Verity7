@@ -1,5 +1,6 @@
 import sys
 import asyncio
+import base64
 import uvicorn
 
 # --- CONFIGURAÇÃO OBRIGATÓRIA PARA WINDOWS + PLAYWRIGHT ---
@@ -97,7 +98,8 @@ async def iniciar_captura(request: CapturaRequest):
             id_registro=str(registro.get('id', 'N/A')),
             hash_sha256=hash_img,
             tamanho_bytes=len(screenshot_bytes),
-            status="Concluído"
+            status="Concluído",
+            screenshot_base64=base64.b64encode(screenshot_bytes).decode('utf-8')
         )
 
     except HTTPException:

@@ -1,26 +1,179 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary:        #1A2744;
+  --color-primary-light:  #2C3E6B;
+  --color-accent:         #C9A84C;
+  --color-accent-soft:    #F0E6C8;
+  --color-bg:             #F7F6F3;
+  --color-surface:        #FFFFFF;
+  --color-border:         #E2DDD5;
+  --color-text-primary:   #1A1A1A;
+  --color-text-secondary: #6B6560;
+  --color-success:        #2D6A4F;
+  --color-success-bg:     #E6F4EA;
+  --color-danger:         #8B2020;
+  --color-danger-bg:      #FFEBE9;
+  --color-warning-bg:     #FFF4E5;
+  --color-warning-text:   #B45309;
+  --color-badge-bg:       #EAF0FF;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --shadow: 0 1px 4px rgba(0,0,0,0.08);
+  --transition: 200ms ease;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-playfair);
+  --font-mono: var(--font-jetbrains);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-weight: 700;
+}
+
+button, input, select, textarea {
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+}
+
+/* ── Layout ────────────────────────────────────────────── */
+.auth-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .auth-layout { grid-template-columns: 1fr; }
+  .auth-branding { display: none; }
+  .auth-form-container { padding: 2rem; }
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .app-layout { grid-template-columns: 1fr; }
+  .app-sidebar { display: none; }
+  .app-content { padding: 1.5rem; }
+}
+
+/* ── Components ────────────────────────────────────────── */
+.card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--color-border);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+.btn-primary:not(:disabled):hover {
+  background-color: var(--color-primary-light);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+.btn-outline:not(:disabled):hover {
+  background-color: var(--color-bg);
+}
+
+.btn-ghost {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  padding: 0.5rem;
+}
+.btn-ghost:hover {
+  color: var(--color-text-primary);
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  outline: none;
+  transition: var(--transition);
+  font-size: 1rem;
+  background: white;
+}
+.input-field:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,39,68,0.08);
+}
+.input-field::placeholder {
+  color: #b0aba5;
+}
+
+.badge {
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Animations ────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+.animate-fade-in    { animation: fadeIn 300ms ease; }
+.animate-spin       { animation: spin 1s linear infinite; }
+.animate-pulse-slow { animation: pulse-opacity 1.5s ease-in-out infinite; }
+
+/* ── Print ─────────────────────────────────────────────── */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white; }
 }
