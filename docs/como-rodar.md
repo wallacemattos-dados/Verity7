@@ -125,6 +125,14 @@ curl http://localhost:3000/api/health
 
 ## 3. Frontend (Next.js)
 
+crie um arquivo .env.local na raiz do projeto e adicione a variável de ambiente:
+
+NEXT_PUBLIC_API_URL=http://localhost:3000
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
+
 Abra um **terceiro terminal** e execute:
 
 ```bash
