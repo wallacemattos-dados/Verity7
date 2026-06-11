@@ -22,7 +22,11 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!token) return;
     getCaptures(token)
-      .then(({ registros }) => setRegistros(registros))
+      .then((data) => {
+
+        const lista = Array.isArray(data) ? data : (data.registros || []);
+        setRegistros(lista);
+      })
       .catch(() => {})
       .finally(() => setLoadingData(false));
   }, [token]);
@@ -30,7 +34,7 @@ export default function DashboardPage() {
   if (!token || !user) return null;
 
   const firstName = user.email.split('@')[0];
-  const recentes = registros.slice(0, 5);
+  const recentes = (registros || []).slice(0, 5);
 
   return (
     <div className="app-layout animate-fade-in">
@@ -60,14 +64,14 @@ export default function DashboardPage() {
             iconBg="var(--color-badge-bg)"
             iconColor="var(--color-primary)"
             label="Total de Registros"
-            value={loadingData ? '…' : String(registros.length)}
+            value={loadingData ? '_' : String(registros?.length || 0)}
           />
           <StatCard
             icon={<CheckIcon />}
             iconBg="#E6F4EA"
             iconColor="var(--color-success)"
             label="Hashes Verificados"
-            value={loadingData ? '…' : String(registros.length)}
+            value={loadingData ? '_' : String(registros?.length || 0)}
           />
           <StatCard
             icon={<ShieldIcon />}
@@ -83,7 +87,7 @@ export default function DashboardPage() {
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1.125rem' }}>Registros Recentes</h2>
-            {registros.length > 0 && (
+            {(registros?.length || 0) > 0 && (
               <Link href="/dashboard/registros" style={{ fontSize: '0.875rem', color: 'var(--color-primary)', fontWeight: 600 }}>
                 Ver todos →
               </Link>
@@ -126,7 +130,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentes.map(reg => (
+                  {recentes?.map(reg => (
                     <tr
                       key={reg.id}
                       style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer', transition: 'background var(--transition)' }}
@@ -165,7 +169,6 @@ export default function DashboardPage() {
   );
 }
 
-/* ── Sub-components ──────────────────────────────────────── */
 function StatCard({ icon, iconBg, iconColor, label, value, isText }: {
   icon: React.ReactNode; iconBg: string; iconColor: string;
   label: string; value: string; isText?: boolean;
@@ -192,7 +195,6 @@ function StatCard({ icon, iconBg, iconColor, label, value, isText }: {
   );
 }
 
-/* ── Icons ───────────────────────────────────────────────── */
 function PlusIcon() {
   return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>;
 }

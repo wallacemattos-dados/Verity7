@@ -1,48 +1,76 @@
-import { Response } from 'express';
-import { supabase } from '../config/supabase';
-import { AuthenticatedRequest } from '../middlewares/authMiddleware';
+import { Request, Response } from 'express';
 
-export const listCaptures = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const listCaptures = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.id;
-
-    const { data, error } = await supabase
-      .from('auditoria')
-      .select('id, titulo, url_alvo, hash_img')
-      .eq('usuario_id', userId);
-
-    if (error) {
-      res.status(400).json({ error: error.message });
+    const userId = (req as any).user?.id;
+    
+    if (!userId) {
+      res.status(401).json({ error: 'Usuário não autenticado.' });
       return;
     }
 
-    res.status(200).json({ registros: data ?? [] });
+    const captureServiceUrl = process.env.CAPTURE_SERVICE_URL;
+    if (!captureServiceUrl) {
+      throw new Error('CAPTURE_SERVICE_URL não configurado no ficheiro .env');
+    }
+
+    const response = await fetch(`${captureServiceUrl}/api/captures`, {
+      method: 'GET',
+      headers: {
+        'x-user-id': userId,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      res.status(response.status).json(errorData);
+      return;
+    }
+
+    const data = await response.json();
+    res.status(200).json(data);
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro interno ao buscar registros.' });
+    console.error('[Gateway] Erro ao buscar capturas no serviço Python:', err);
+    res.status(500).json({ error: 'Erro interno ao comunicar com o serviço de captura de provas.' });
   }
 };
 
-export const getCapture = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getCapture = async (req: Request, res: Response): Promise<void> => {
   try {
-    const userId = req.user!.id;
+    const userId = (req as any).user?.id;
     const { id } = req.params;
 
-    const { data, error } = await supabase
-      .from('auditoria')
-      .select('id, titulo, url_alvo, hash_img, usuario_id')
-      .eq('id', id)
-      .eq('usuario_id', userId)
-      .single();
-
-    if (error || !data) {
-      res.status(404).json({ error: 'Registro não encontrado.' });
+    if (!userId) {
+      res.status(401).json({ error: 'Usuário não autenticado.' });
       return;
     }
 
+    const captureServiceUrl = process.env.CAPTURE_SERVICE_URL;
+    if (!captureServiceUrl) {
+      throw new Error('CAPTURE_SERVICE_URL não configurado no ficheiro .env');
+    }
+
+    const response = await fetch(`${captureServiceUrl}/api/captures/${id}`, {
+      method: 'GET',
+      headers: {
+        'x-user-id': userId,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      res.status(response.status).json(errorData);
+      return;
+    }
+
+    const data = await response.json();
     res.status(200).json(data);
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro interno ao buscar registro.' });
+    console.error('[Gateway] Erro ao buscar detalhe da captura no serviço Python:', err);
+    res.status(500).json({ error: 'Erro interno ao comunicar com o serviço de captura de provas.' });
   }
 };

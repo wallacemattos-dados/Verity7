@@ -32,7 +32,7 @@ function LoginContent() {
     setError('');
     setLoading(true);
     try {
-      const { token: t } = await login(email, password);
+      const { token: t } = await login({ email, password });
       setAuth(t);
       router.push('/dashboard');
     } catch (err: unknown) {

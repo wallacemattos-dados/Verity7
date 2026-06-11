@@ -43,16 +43,25 @@ export default function Sidebar() {
         </p>
       </div>
 
-      {/* User info */}
+      {/* User info  */}
       <div
         style={{
           marginBottom: '2rem',
           padding: '1rem',
           background: 'rgba(255,255,255,0.07)',
           borderRadius: 'var(--radius-md)',
+          overflow: 'hidden', // Importante para o truncate funcionar
         }}
       >
-        <p style={{ fontSize: '0.875rem', fontWeight: 600, color: 'white' }}>
+        <p style={{ 
+          fontSize: '0.875rem', 
+          fontWeight: 600, 
+          color: 'white',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: 'block'
+        }}>
           {user?.email ?? '—'}
         </p>
         <p style={{ fontSize: '0.75rem', opacity: 0.55, marginTop: '0.25rem', textTransform: 'capitalize' }}>
@@ -116,7 +125,6 @@ export default function Sidebar() {
   );
 }
 
-/* ── Icons ─────────────────────────────────────────────── */
 function LayoutIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

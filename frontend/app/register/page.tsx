@@ -6,6 +6,11 @@ import { register } from '@/lib/api';
 
 export default function RegisterPage() {
   const router = useRouter();
+  
+  const [nomeCompleto, setNomeCompleto] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [role, setRole] = useState('comum');
+  const [oab, setOab] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -20,8 +25,17 @@ export default function RegisterPage() {
     }
     setError('');
     setLoading(true);
+    
     try {
-      await register(email, password);
+      // Atualizamos a chamada para enviar todos os dados como um objeto
+      await register({
+        nome_completo: nomeCompleto,
+        email,
+        password,
+        cpf,
+        role,
+        oab: role === 'advogado' ? oab : undefined
+      });
       router.push('/login?registered=1');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Erro ao criar conta.');
@@ -32,7 +46,7 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-layout">
-      {/* Branding */}
+      {/* Branding (Mantido intacto) */}
       <div
         className="auth-branding"
         style={{
@@ -61,6 +75,7 @@ export default function RegisterPage() {
           justifyContent: 'center',
           padding: '4rem',
           backgroundColor: 'var(--color-surface)',
+          overflowY: 'auto', // Adicionado para garantir rolagem em telas menores com o form maior
         }}
       >
         <div style={{ maxWidth: '440px', width: '100%', margin: '0 auto' }}>
@@ -70,6 +85,90 @@ export default function RegisterPage() {
           </p>
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            
+            {/* 1. Seleção de Perfil (Botões Lado a Lado) */}
+            <div>
+              <label style={labelStyle}>Perfil de Usuário</label>
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button
+                  type="button" // Essencial para não enviar o formulário ao clicar
+                  onClick={() => setRole('comum')}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem',
+                    borderRadius: 'var(--radius-sm, 6px)',
+                    border: role === 'comum' ? '2px solid var(--color-primary)' : '1px solid #e5e7eb',
+                    backgroundColor: role === 'comum' ? '#eff6ff' : 'transparent', // Fundo azul claro quando ativo
+                    color: role === 'comum' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Usuário Comum
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('advogado')}
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem',
+                    borderRadius: 'var(--radius-sm, 6px)',
+                    border: role === 'advogado' ? '2px solid var(--color-primary)' : '1px solid #e5e7eb',
+                    backgroundColor: role === 'advogado' ? '#eff6ff' : 'transparent',
+                    color: role === 'advogado' ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  Advogado
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Nome Completo */}
+            <div>
+              <label style={labelStyle}>Nome Completo</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Seu nome completo"
+                value={nomeCompleto}
+                onChange={(e) => setNomeCompleto(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* 3. CPF */}
+            <div>
+              <label style={labelStyle}>CPF</label>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="Apenas números"
+                value={cpf}
+                onChange={(e) => setCpf(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* 4. Renderização Condicional da OAB */}
+            {role === 'advogado' && (
+              <div>
+                <label style={labelStyle}>Número da OAB</label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Ex: 12345/BA"
+                  value={oab}
+                  onChange={(e) => setOab(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+
+            {/* 5. Email */}
             <div>
               <label style={labelStyle}>Email</label>
               <input
@@ -83,31 +182,34 @@ export default function RegisterPage() {
               />
             </div>
 
-            <div>
-              <label style={labelStyle}>Senha</label>
-              <input
-                type="password"
-                className="input-field"
-                placeholder="Mínimo 8 caracteres"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                autoComplete="new-password"
-              />
-            </div>
+            {/* 6. Senhas */}
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ flex: 1 }}>
+                <label style={labelStyle}>Senha</label>
+                <input
+                  type="password"
+                  className="input-field"
+                  placeholder="Mínimo 8 caracteres"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                />
+              </div>
 
-            <div>
-              <label style={labelStyle}>Confirmar Senha</label>
-              <input
-                type="password"
-                className="input-field"
-                placeholder="Repita a senha"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
-                required
-                autoComplete="new-password"
-              />
+              <div style={{ flex: 1 }}>
+                <label style={labelStyle}>Confirmar Senha</label>
+                <input
+                  type="password"
+                  className="input-field"
+                  placeholder="Repita a senha"
+                  value={confirm}
+                  onChange={(e) => setConfirm(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                />
+              </div>
             </div>
 
             {error && (

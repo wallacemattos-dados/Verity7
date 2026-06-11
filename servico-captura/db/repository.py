@@ -48,3 +48,23 @@ def salvar_log_auditoria(titulo: str, url_alvo: str, hash_img: str, usuario_id: 
     except Exception as e:
         print(f"Erro crítico ao salvar no Supabase: {e}")
         return {}
+    
+def listar_logs_auditoria(usuario_id: str) -> list:
+    """Busca todas as capturas de um usuário específico, ordenadas da mais recente para a mais antiga."""
+    try:
+        resposta = supabase.table("auditoria").select("*").eq("usuario_id", usuario_id).order("created_at", desc=True).execute()
+        return resposta.data if resposta.data else []
+    except Exception as e:
+        print(f"[ERROR] Erro ao listar logs no Supabase: {e}", flush=True)
+        return []
+
+def obter_log_auditoria(registro_id: str, usuario_id: str) -> dict:
+    """Busca os detalhes de uma captura específica, garantindo que pertence ao usuário logado."""
+    try:
+        resposta = supabase.table("auditoria").select("*").eq("id", registro_id).eq("usuario_id", usuario_id).execute()
+        if resposta.data and len(resposta.data) > 0:
+            return resposta.data[0]
+        return None
+    except Exception as e:
+        print(f"[ERROR] Erro ao obter log específico no Supabase: {e}", flush=True)
+        return None

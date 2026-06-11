@@ -5,10 +5,17 @@ import { supabase } from '../config/supabase';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { email, password, role } = req.body;
+    const { nome_completo, email, password, cpf, role, oab } = req.body;
 
-    if (!email || !password) {
-      res.status(400).json({ error: 'Email e senha são obrigatórios.' });
+    if (!nome_completo || !email || !password || !cpf) {
+      res.status(400).json({ error: 'Nome completo, email, senha e CPF são obrigatórios.' });
+      return;
+    }
+
+    const userRole = role === 'advogado' ? 'advogado' : 'comum';
+    
+    if (userRole === 'advogado' && !oab) {
+      res.status(400).json({ error: 'O número da OAB é obrigatório para o cadastro de advogados.' });
       return;
     }
 
@@ -18,9 +25,16 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const { data, error } = await supabase
       .from('users')
       .insert([
-        { email, password_hash, role: role || 'cliente' }
+        { 
+          nome_completo,
+          email, 
+          password_hash, 
+          cpf,
+          role: userRole,
+          oab: userRole === 'advogado' ? oab : null 
+        }
       ])
-      .select('id, email, role, created_at')
+      .select('id, nome_completo, email, role, created_at')
       .single();
 
     if (error) {

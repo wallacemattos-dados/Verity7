@@ -21,14 +21,19 @@ export default function RegistrosPage() {
     if (!token) return;
 
     getCaptures(token)
-      .then(({ registros }) => setRegistros(registros))
+      .then((data) => {
+        // Garantir que lidamos com o formato correto da API
+        const lista = Array.isArray(data) ? data : ((data as any).registros || []);
+        setRegistros(lista);
+      })
       .catch(e => setErro(e.message))
       .finally(() => setLoading(false));
   }, [token, router]);
 
-  const filtrados = registros.filter(r =>
-    r.titulo.toLowerCase().includes(filtro.toLowerCase()) ||
-    r.url_alvo.toLowerCase().includes(filtro.toLowerCase())
+  // A CORREÇÃO: Blindagem com fallback || []
+  const filtrados = (registros || []).filter(r =>
+    (r.titulo || '').toLowerCase().includes((filtro || '').toLowerCase()) ||
+    (r.url_alvo || '').toLowerCase().includes((filtro || '').toLowerCase())
   );
 
   return (
@@ -100,7 +105,7 @@ export default function RegistrosPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtrados.map(reg => (
+                    {filtrados?.map(reg => (
                       <tr
                         key={reg.id}
                         style={{ borderBottom: '1px solid var(--color-border)', cursor: 'pointer', transition: 'background var(--transition)' }}
@@ -133,7 +138,7 @@ export default function RegistrosPage() {
                 </table>
 
                 <p style={{ padding: '1rem', fontSize: '0.8125rem', color: 'var(--color-text-secondary)', textAlign: 'right' }}>
-                  {filtrados.length} registro{filtrados.length !== 1 ? 's' : ''}
+                  {filtrados?.length || 0} registro{filtrados?.length !== 1 ? 's' : ''}
                 </p>
               </div>
             )
