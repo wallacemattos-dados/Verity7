@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Veridit - Teste de Captura</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; background: #f0f2f5; }
+        .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 12px; margin: 8px 0; box-sizing: border-box; font-size: 16px; }
+        button { background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 12px; border-radius: 6px; overflow-x: auto; }
+        .erro { color: red; background: #ffe6e6; padding: 12px; border-radius: 6px; }
+        .sucesso { color: green; background: #e6ffe6; padding: 12px; border-radius: 6px; }
+        .carregando { color: #007bff; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>📸 Serviço de Captura - Veridit</h2>
+    <label>🔗 URL:</label>
+    <input type="text" id="url" placeholder="https://exemplo.com" value="https://www.google.com">
+    <label>📝 Título:</label>
+    <input type="text" id="titulo" placeholder="Título da captura" value="Teste via HTML">
+    <label>👤 Usuário ID:</label>
+    <input type="text" id="usuario_id" placeholder="Email ou ID" value="teste@veridit.com">
+    <button onclick="enviar()">🚀 Capturar</button>
+    <div id="resultado"></div>
+</div>
+
+<script>
+    async function enviar() {
+        const url = document.getElementById('url').value.trim();
+        const titulo = document.getElementById('titulo').value.trim() || "Teste automático";
+        const usuario_id = document.getElementById('usuario_id').value.trim() || "anonimo";
+        const resultadoDiv = document.getElementById('resultado');
+
+        if (!url) {
+            resultadoDiv.innerHTML = '<div class="erro">❌ URL é obrigatória</div>';
+            return;
+        }
+
+        resultadoDiv.innerHTML = '<div class="carregando">⏳ Enviando requisição...</div>';
+
+        try {
+            const response = await fetch('/api/capture', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url, titulo, usuario_id })
+            });
+
+            if (!response.ok) {
+                let errorMsg = `HTTP ${response.status}`;
+                try {
+                    const err = await response.json();
+                    errorMsg = err.detail || errorMsg;
+                } catch(e) {}
+                throw new Error(errorMsg);
+            }
+
+            const data = await response.json();
+            resultadoDiv.innerHTML = `
+                <div class="sucesso">✅ Captura concluída</div>
+                <pre>
+ID Registro: ${data.id_registro}
+Hash SHA-256: ${data.hash_sha256}
+Tamanho: ${data.tamanho_bytes} bytes
+Status: ${data.status}
+                </pre>
+            `;
+        } catch (err) {
+            resultadoDiv.innerHTML = `<div class="erro">❌ Erro: ${err.message}</div>`;
+        }
+    }
+</script>
+</body>
+</html>
