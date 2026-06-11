@@ -6,7 +6,7 @@ from db.repository import salvar_log_auditoria
 
 app = FastAPI(title="Veridit - Serviço de Captura")
 
-@app.post("/api/capturar", response_model=CapturaResponse)
+@app.post("/api/capture", response_model=CapturaResponse)
 async def iniciar_captura(request: CapturaRequest):
     try:
         # 1. Captura a imagem (REQ 08 e 11)

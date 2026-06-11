@@ -7,7 +7,7 @@ async def capturar_tela_pagina(url: str) -> bytes:
         page = await browser.new_page()
         
         # Visita a página e aguarda a rede ficar ociosa para garantir o carregamento
-        await page.goto(url, wait_until="networkidle")
+        await page.goto(url, wait_until="load", timeout=60000)
         
         # Tira o print da tela inteira
         screenshot_bytes = await page.screenshot(full_page=True)
